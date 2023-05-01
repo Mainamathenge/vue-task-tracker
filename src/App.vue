@@ -2,6 +2,7 @@
  <div class = "container">
 
       <Header />
+      <AddTask @add-task="AddTask"/>
       <Tasks @toggle-reminder="toggle-reminder" @delete-task="deleteTask" :tasks="tasks"/>
  </div>
 </template>
@@ -9,12 +10,13 @@
 <script>
 import Header from './components/Header'
 import Tasks from './components/Tasks'
-
+import AddTask from './components/Addtask'
 export default {
   name: 'App',
   components: {
    Header ,
-   Tasks
+   Tasks,
+   AddTask
   },
   data(){
     return {
@@ -22,43 +24,31 @@ export default {
     }
   },
   methods:{
+    addTask(task){
+      // eslint-disable-next-line no-undef
+      this.tasks = [...this.tasks,task]
+    },
     deleteTask(id){
+      if (confirm('Are you Sure')){
       this.tasks = this.tasks.filter((task) => task.id !==id );
-      console.log('task',id)
-    },
-    toggleReminder(id){
-      console.log(id);
-
-    },
+      console.log('task',id);
+    }
   },
-  created(){
-    this.tasks = [
-      {
-        id : 1,
-        text : 'Buy the foundation Building',
-        day : '2nd May 2023',
-        reminder : true
-      },
-      {
-        id : 2,
-        text : 'Buy the Entire Gym facility',
-        day : '7th May 2023',
-        reminder : false
-      },
-      {
-        id : 1,
-        text : 'Go for the QHALA interview',
-        day : '20 March 2023',
-        reminder : true
-      },
-      {
-        id : 1,
-        text : 'Start earning from the gym',
-        day : '30th March 2023',
-        reminder : false
-      },
-      
-    ]
+    toggleReminder(id){
+      this.task = this.tasks.map((task) => 
+      task.id ===id ? {
+        ...task,reminder : !task.reminder } :task
+      )
+    },
+    async fetchTasks(){
+        const res = await fetch('http://localhost:5000/tasks');
+        const data = res.json();
+        return data;
+    }
+  },
+  async created(){
+    this.tasks = await this.fetchTasks();
+    
   },
 }
 </script>
